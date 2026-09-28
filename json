@@ -1,0 +1,332 @@
+{
+  "name": "test-4",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 5,
+              "triggerAtMinute": 45
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        208
+      ],
+      "id": "879bc756-1a08-48b0-92b6-46e071e4245e",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f3a92e13-e8ad-4af8-91b7-91e71849bf8c",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "url": "https://arstechnica.com/ai/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        208
+      ],
+      "id": "d0592a33-eca2-46ad-8d73-8af0a8eb8b75",
+      "name": "RSS Read1"
+    },
+    {
+      "parameters": {
+        "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        400
+      ],
+      "id": "cbf3997a-ee2b-438d-8e9a-f51eaeb2732a",
+      "name": "RSS Read2"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "isoDate",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3dec9f82-b972-4cbb-997d-981f577f28fd",
+      "name": "Sort",
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        672,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 6
+      },
+      "id": "b86e5e6d-a742-496c-9e16-d024d1e6b924",
+      "name": "Limit",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        896,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "id": "2ab8eda9-a7fb-4060-89b0-3af8f25bf014",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        448,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are summarising an AI news story for a daily email digest. Return it in exactly this shape and nothing else:\nLine 1: the headline wrapped in <h3> tags.\nLine 2: one paragraph of about 40 words in plain English, wrapped in <p> tags.\nLine 3: an anchor tag linking to the article, with the link text \"Read the full story\".\n\nTitle: {{ $json.title }}\nSnippet: {{  $json.contentSnippet }}\nLink: {{  $json.link }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1120,
+        208
+      ],
+      "id": "090e4d8f-1c67-443e-aa48-482b7ac5b717",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        416
+      ],
+      "id": "96b99abc-57f4-4d2d-a5cb-4fcd501db061",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "4UIEAr3hspWoKmK5",
+          "name": "Groq account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "vinita.kavish@gmail.com",
+        "subject": "AI digest ",
+        "message": "={{ $json.text.join('<hr>') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        208
+      ],
+      "id": "09a849a5-a328-4887-a899-00f8798e3fcb",
+      "name": "Send a message",
+      "webhookId": "1a48a121-27a5-4e59-b297-f930b06de86e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zuw79rXTBfhaH5IN",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1632,
+        352
+      ],
+      "id": "db83ae72-f171-4a58-9d52-11759fb0f208",
+      "name": "Aggregate"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "RSS Read2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "1600a51c-528e-47cf-98ba-ddf79402addd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "941460346a654f98f2a2379fe5603af82d97331ec413f27232cb962029139429"
+  },
+  "nodeGroups": [],
+  "id": "MMeQ1DR4JiKOElCG",
+  "tags": []
+}
