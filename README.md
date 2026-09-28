@@ -2,6 +2,8 @@
 a simple automation workflow that fetches ai news, drafts an email containing snippets and sends it at the specified time
 An n8n workflow that pulls the latest AI news from three tech publications every morning, summarises each story with an LLM, and emails a clean HTML digest to your inbox.
 
+Video tutorial: https://canva.link/n8ntut
+
 What it does
 Runs daily at 5:45 AM (in your n8n instance's timezone).
 Reads three RSS feeds in parallel:
